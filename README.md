@@ -5,9 +5,12 @@ written in 2023 while working with Maneesh Sahani at the Gatsby Computational Ne
 
 The main focus of this work was 1) to experiment with the RPM itself and understand its core functioning
                                    (which turns out to be discretization of observed space under cond. independence).
+                                   
                                 2) to implement various fitting methods that go beyond the basic saturated VI of the
                                    original AISTATS publication [1], such as minibatch SGD, amortized q(Z|X) etc. 
-Also contains basic implementations of several RPM variants for testing purposes, some of which never made much sense. 
+Also contains basic implementations of several RPM variants for testing purposes, some of which never made much sense.
+A special focus of this repository is to write the RPM in general exponential family form, in constrast to the specific 
+implementations for the two special cases of Gaussian (process) p(Z), f(Z|X), q(Z|X), and discrete latents covered in [1].
 
 This repository is a copy of the development repository that got transfered to the 'Gatsby-Sahani' github organization.
 
