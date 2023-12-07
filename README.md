@@ -4,7 +4,7 @@ Development repository of Marcel Nonnenmacher on the exponential family recognit
 written in 2023 while working with Maneesh Sahani at the Gatsby Computational Neuroscience Unit.
 
 The main focus of this work was i) to experiment with the RPM itself and understand its core functioning
-                                   (which turns out to be discretization of observed space under cond. independence), and                                   
+                                   (which turns out to be discretization of observed space under cond. independence -- it seemingly cannot be reduced beyond this, and viewing the model likelihood p(xj|Z) = f(Z|xj)p0(xj)/Fj(Z) simply as Bayes rule seems to be missing the important part that the empirical p0(xj) discretizes space), and                                   
                               ii) to implement various fitting methods that go beyond the basic saturated VI of the
                                    original AISTATS publication [1], such as minibatch SGD, amortized q(Z|X) etc. 
 Also contains basic implementations of several RPM variants for testing purposes, some of which never made much sense.
