@@ -13,6 +13,7 @@ implementations for the two special cases of Gaussian (process) p(Z), f(Z|X), q(
 
 This repository is a copy of the development repository that got transfered to the 'Gatsby-Sahani' github organization.
 
+The main model variants covered by this code base are:
 - expFam RPM (rpm.py) : latent variable Z is continuous, i.e. p(Z), f(Z|xj) are some continuous exponential family.
                         Note this case generally has intractable ELBO, and so far only the inner variational bound
                         is implemented. f(Z|xj) can be conditional expFam or some general 
