@@ -9,9 +9,9 @@ The main model variants covered by this code base are:
 - continous latent-variable from a fixed exponential family $p(Z|\eta) \propto \chi(Z) e^{\eta^\top{}t(Z)}$. [Several exponential families](https://github.com/mnonnenm/torchRPM/blob/main/expFam.py) implemented, and more can be added easily.
 - unnormalized recognition factors $f(Z|x_j) = e^{g(Z,x_j)}$, where $g_j(Z,x_j) = g_j(x_j)'t(Z) + h_j(x_j)$ for some $h_j$ other than the negative log-partition function of exponential-family $p(Z)$.
 - a standard and a time-series version of the RPM (similar to the latent GP from [1], but with discrete time). Time-series variants rely strongly on multivariate densities $f(Z_{t=1,..,T}|xj)$ to have tractable marginals $f(Z_t|xj)$, so they are largely restricted to Gaussian latents.
-- RP-VAEs and time-series versions: Reparametrized RPM variant with amortized $q(Z|X)$ assuming $F_j(Z) = p(Z)$ in $q$ (i.e. not in the implicit likelihood $p(x_j|Z)$). Makes $q$ tractable and computable given the current generative model, simplifies the ELBO and can greatly speed up non-amortized inference.  
+- reparametrized RPM variant with amortized $q(Z|X)$ assuming $F_j(Z) = p(Z)$ in $q$ (i.e. not in the implicit likelihood $p(x_j|Z)$). Makes $q$ tractable and computable given the current generative model, simplifies the ELBO and can greatly speed up non-amortized inference.  
 - the case of continous latent variables generally has intractable ELBO, and this repository implementents the `inner variational bound' (lower bound to ELBO) of [1]. Allows saturated recognition models $q(Z|X^n) = q(Z|\eta^n)$ and amortized recognition models $q(Z|X^n) = q(Z|\eta(X^n))$ with learned deep network-based $\eta(X)$.
-- further RPM variants implemented for research purposes (e.g. an implitic RPM directly defining $\omega(x) = \int p(x) \prod_j f_j(Z|x_j)/F_j(Z) dZ$ under an assumption that $F_j(Z)=p(Z)$ while trying to enforce $p(x_j)$ to match the data.
+- further RPM variants implemented for research purposes (e.g. an implitic RPM directly defining $\omega(x) = \int p(Z) \prod_j f_j(Z|x_j)/F_j(Z) dZ$ under an assumption that $F_j(Z)=p(Z)$ while trying to enforce $p(x_j)$ to match the data).
   
 Expermiments: main experiments imlemented so far include 
 - the bouncing balls examples from the RPM paper [1] that can be found in utils_data_external.py, 
