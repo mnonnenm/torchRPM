@@ -3,42 +3,36 @@
 Development repository of Marcel Nonnenmacher on the exponential family recognition-parametrised model (RPM) [1]
 written in 2023 while working with Maneesh Sahani at the Gatsby Computational Neuroscience Unit.
 
-The main focus of this work was i) to experiment with the RPM itself and understand its core functioning
-                                   (which turns out to be discretization of observed space under cond. independence -- it seemingly cannot be reduced beyond this, and viewing the model likelihood p(xj|Z) = f(Z|xj)p0(xj)/Fj(Z) simply as Bayes rule seems to be missing the important part that the empirical p0(xj) discretizes space), and                                   
-                              ii) to implement various fitting methods that go beyond the basic saturated VI of the
-                                   original AISTATS publication [1], such as minibatch SGD, amortized q(Z|X) etc. 
-Also contains basic implementations of several RPM variants for testing purposes, some of which never made much sense.
-A special focus of this repository is to write the RPM in general exponential family form, in constrast to the specific 
-implementations for the two special cases of Gaussian (process) p(Z), f(Z|X), q(Z|X), and discrete latents covered in [1].
-
-This repository is a copy of the development repository that got transfered to the 'Gatsby-Sahani' github organization.
+## Contents
 
 The main model variants covered by this code base are:
-- expFam RPM (rpm.py) : latent variable Z is continuous, i.e. p(Z), f(Z|xj) are some continuous exponential family.
-                        Note this case generally has intractable ELBO, and so far only the inner variational bound
-                        is implemented. f(Z|xj) can be conditional expFam or some general 
-                        log f(Z|xj) = g(Z,xj) = gj(xj)'t(Z) + hj(xj) that doesn't have to be normalized. 
-- temporal expFam RPM (rpm.py) : time-series version of the RPM. Relies strongly on marginalization properties of
-                                 multivariate densities f(Z_{t=1,..,T}|xj) to have tractable f(Z_t|xj), so largely
-                                 restricted to Gaussian f(Z|xj), p(Z).
-- RPVAEs and tempRPVAEs (rpm.py, merged into RPM class resp tempRPM class): Variant of RPM with amortized q(Z|xj)
-                        that assumes Fj(Z) = p(Z) only in q(Z|xj) (i.e. not in p(xj|Z)), which not only makes q(Z|xj)
-                        tractable and computable given the current generative model, but also simplifies the ELBO.
-                        ELBO still intractable for continous Z and needs e.g. the inner variational bound. 
-                        Automatically used when providing a (temp-)RPM with argument q='use_theta'. 
-
-- Discrete RPM (discreteRPM.py) : latent variable Z is discrete, i.e. p(Z), f(Z|xj) are categorical. Also allows
-                                  f(Z|xj) = e^g(Z,xj) unnormalized, i.e. g(Z,xj) = g(xj)'t(Z) + h(xj) for some h.  
-                                  Likelihood is tractable, so no tricks implemented. 
-- implicitRPM (implicitRPM.py) : abandoned RPM version directly defining w(x) = int p(x) prod fj(Z|xj)/Fj(Z) dZ
-                                 under an assumption that Fj(Z)=p(Z) which I hoped to make 'less false' by
-                                 encouraing p_model(xj) = p_data(xj). Turns out matching xj-marginals will enforce
-                                 Fj(Z)=p(Z) (and hence make the assumption true) only in the case dim(eta) <= dim(xj),
-                                 so the intended use-case for implicit DDC won't work.
+- discrete latent variables, i.e. $p(Z), f(Z|x_j)$ are categorical. 
+- continous latent-variable from a fixed exponential family.
+- unnormalized recognition factors $f(Z|x_j) = e^{g(Z,x_j)}$, where $g_j(Z,x_j) = g_j(x_j)'t(Z) + h_j(x_j)$ for some $h_j$ other than the negative log-partition function of exponential-family $p(Z)$.
+- a standard and a time-series version of the RPM (similar to the latent GP from [1], but with discrete time). Time-series variants rely strongly on marginalization properties of multivariate densities $f(Z_{t=1,..,T}|xj)$ to have tractable marginals $f(Z_t|xj)$, so they are largely restricted to Gaussian latents.
+- RP-VAEs and time-series verions: Reparametrized variant of RPM with amortized $q(Z|X)$ that assumes $F_j(Z) = p(Z)$ only in $q$ (i.e. not in the implicit likelihood $p(x_j|Z)$), which not only makes $q$ tractable and computable given the current generative model, but also simplifies the ELBO.  
+- a tested and subsequently abandoned RPM version  (implicitRPM.py) directly defining $\omega(x) = \int p(x) \prod_j f_j(Z|x_j)/F_j(Z) dZ$ under an assumption that Fj(Z)=p(Z) which I hoped to make 'less false' by encouraging model marginals $p(xj)$ to match the data. It later turned out that matching $x_j$-marginals will enforce $F_j(Z)=p(Z)$ (and hence make the assumption true) only in the case dim($\eta_j(x_j)$) <= dim($x_j$), so the intended use-case for implicit DDC won't work.
+- the case of continous latent variables generally has intractable ELBO, and this repository implementents the `inner variational bound' (lower bound to ELBO) of [1].
   
 Expermiments: main experiments imlemented so far include 
 - the bouncing balls examples from the RPM paper [1] that can be found in utils_data_external.py, 
 - a two-dimensional Gaussian copula with 1D marginals (either Gaussian or exponentially distributed), see notebooks.
 - several variants of the peer-supervision task on MNIST used for testing discrete RPMs, see notebooks. 
+
+
+
+## Scope
+
+The main focus of this work was 
+- to experiment with the RPM itself and understand its core functioning (i.e. discretization of observed space under cond. independence),                                   
+- to implement various fitting methods that go beyond the basic saturated VI of the original AISTATS publication [1], such as minibatch SGD, amortized q(Z|X) etc. 
+- to write the RPM in general exponential family form, in constrast to the specific implementations for the two special cases of Gaussian (process) $p(Z), f(Z|x_j), q(Z|X)$, and discrete latents covered in [1].
+
+In the process of the above, we realized several new aspects of the recognition-parametrised model, such that 
+- recognition factors need not be normalized -- the argument for their shape as being log-affine in sufficient statistics $t(Z)$ of the latent prior is indeed a conjugacy argument!
+- such conjugacy can indeed be learned by matching the data distribution via maximum likelihood,  
+- a reparametrization of the RPM recognition model can substantially speed up variational EM.
+
+This repository is a personal copy of my original development repository that got transfered to the 'Gatsby-Sahani' github organization.
 
 [1] Walker, William I., et al. "Unsupervised representation learning with recognition-parametrised probabilistic models." International Conference on Artificial Intelligence and Statistics. PMLR, 2023.
