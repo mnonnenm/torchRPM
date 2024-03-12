@@ -29,7 +29,7 @@ The main focus of this work was
 
 In the process of the above, we realized several new aspects of the recognition-parametrised model, such that 
 - recognition factors need not be normalized -- the argument for their shape as being log-affine in sufficient statistics $t(Z)$ of the latent prior is indeed a conjugacy argument!
-- such conjugacy can indeed be learned by matching the data distribution via maximum likelihood,  but equivalence between matching the marginals and $F_j(Z)=p(Z)$ only hold for $dim(x_j) > dim(t(Z))$),
+- such conjugacy can indeed be learned by matching the data distribution via maximum likelihood,  but equivalence between matching the marginals and $F_j(Z)=p(Z)$ only hold for dim($x_j$) $>$ dim($t(Z)$),
 - a reparametrization of the RPM recognition model can substantially speed up variational EM.
 
 This repository is a personal copy of my original development repository that got transfered to the 'Gatsby-Sahani' github organization.
