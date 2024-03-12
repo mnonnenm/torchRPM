@@ -6,7 +6,7 @@ Development repository of Marcel Nonnenmacher on the exponential family [recogni
 
 The main model variants covered by this code base are:
 - discrete latent variables, i.e. $p(Z), f(Z|x_j)$ are categorical. 
-- continous latent-variable from a fixed exponential family. [Several exponential families](https://github.com/mnonnenm/torchRPM/blob/main/expFam.py) implemented, and more can be added easily.
+- continous latent-variable from a fixed exponential family $p(Z|\eta) \propto \chi(Z) e^{\eta^\top{}t(Z)}$. [Several exponential families](https://github.com/mnonnenm/torchRPM/blob/main/expFam.py) implemented, and more can be added easily.
 - unnormalized recognition factors $f(Z|x_j) = e^{g(Z,x_j)}$, where $g_j(Z,x_j) = g_j(x_j)'t(Z) + h_j(x_j)$ for some $h_j$ other than the negative log-partition function of exponential-family $p(Z)$.
 - a standard and a time-series version of the RPM (similar to the latent GP from [1], but with discrete time). Time-series variants rely strongly on multivariate densities $f(Z_{t=1,..,T}|xj)$ to have tractable marginals $f(Z_t|xj)$, so they are largely restricted to Gaussian latents.
 - RP-VAEs and time-series versions: Reparametrized RPM variant with amortized $q(Z|X)$ assuming $F_j(Z) = p(Z)$ in $q$ (i.e. not in the implicit likelihood $p(x_j|Z)$). Makes $q$ tractable and computable given the current generative model, simplifies the ELBO and can greatly speed up non-amortized inference.  
@@ -29,7 +29,7 @@ The main focus of this work was
 
 In the process of the above, we realized several new aspects of the recognition-parametrised model, such that 
 - recognition factors need not be normalized -- the argument for their shape as being log-affine in sufficient statistics $t(Z)$ of the latent prior is indeed a conjugacy argument!
-- such conjugacy can indeed be learned by matching the data distribution via maximum likelihood,  but equivalence between matching the marginals and $F_j(Z)=p(Z)$ only hold for dim($x_j$) $>$ dim($t(Z)$),
+- such conjugacy can indeed be learned by matching the data distribution via maximum likelihood,  but equivalence between matching the marginals and $F_j(Z)=p(Z)$ only hold for dim($x_j$) $>$ dim(t(Z)),
 - a reparametrization of the RPM recognition model can substantially speed up variational EM.
 
 This repository is a personal copy of my original development repository that got transfered to the 'Gatsby-Sahani' github organization.
