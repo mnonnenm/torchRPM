@@ -143,7 +143,7 @@ class RPM(torch.nn.Module):
         # with hj(Z) = exp(nu_j't(Z)) introducing a new variational parameter nu_j (per data point n).
         nu_j = self.iviNatParams(eta_0, idx_data, eta_q, xjs)  # batch_size-by-J-by-D 
         # 1. compute int Fj(Z)/hj(Z) dZ by the normalizers of *all* components of mixture Fj(Z)
-        idx_all = np.arange(N) if self.full_N_for_Fj else idx_data
+        idx_all = np.arange(self.N) if self.full_N_for_Fj else idx_data
         xjs_all = [pxj.x[idx_all] for pxj in self.joint_model[2].pxjs]
         etajs_all = self.factorNatParams(xjs=xjs_all, eta_off=eta_0) # N-by-J-by-D
         phijs_all = torch.stack([rec_factors[j].log_partition(etajs_all[:,j]) for j in range(self.J)],axis=1)
