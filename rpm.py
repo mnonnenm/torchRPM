@@ -2,9 +2,6 @@ import torch
 import numpy as np
 from expFam import ConditionalExpFam, SemiparametricConditionalExpFam
 
-import numpy as np
-import torch
-
 class RPM(torch.nn.Module):
     """
     Recognition-Parametrized Model (RPM) for exponential family recognition factors/prior.
