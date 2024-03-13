@@ -5,3 +5,4 @@ matplotlib
 configargparse 
 notebook
 scikit-learn
+torchvision
