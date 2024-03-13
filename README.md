@@ -4,7 +4,9 @@ Development repository of Marcel Nonnenmacher on the exponential family [recogni
 
 ## The recognition-parametrised model
 
-The recognition-parametrised model (RPM) for latent variables $Z$ and structured observed variables $X = [x_1, \ldots, x_J]$, $J\geq{}2$, is written as 
+The recognition-parametrised model (RPM) is a latent-variable model designed with inference in mind rather than generation. While technically a (discretized) generative model, the focus is on learning latent spaces that can explain dependencies among several high-dimensional observations $x_1, \ldots x_J$. 
+
+The RPM for latent variables $Z$ and structured observed variables $X = [x_1, \ldots, x_J]$, $J\geq{}2$, is written as 
 
 $p_\theta(X,Z) = p_\theta(Z) \prod_j p(x_j|Z) = p_\theta(Z) \prod_j \frac{f_{\theta_j}(Z|x_j)}{F_{\theta_j}(Z)} p_0(x_j)$
 
