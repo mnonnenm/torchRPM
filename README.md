@@ -18,6 +18,8 @@ Trained with a global recognition model $q(Z|X) \approx p_\theta(Z|X)$ and varia
 
 ## Contents
 
+See the [example notebook](https://github.com/mnonnenm/torchRPM/blob/main/example.ipynb) for two simple illustrations of the RPM model.
+
 The main model variants covered by this code base are:
 - discrete latent variables, i.e. $p(Z), f(Z|x_j)$ are categorical. 
 - continous latent-variable from a fixed exponential family $p(Z|\eta) \propto \chi(Z) e^{\eta^\top{}t(Z)}$. [Several exponential families](https://github.com/mnonnenm/torchRPM/blob/main/expFam.py) implemented, and more can be added easily.
