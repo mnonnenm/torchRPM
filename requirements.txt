@@ -4,3 +4,4 @@ torch>=2.0
 matplotlib
 configargparse 
 notebook
+scikit-learn
