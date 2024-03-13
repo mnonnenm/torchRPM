@@ -1,12 +1,12 @@
 import torch
 import numpy as np
 
-
 class discreteRPM_softmaxForm(torch.nn.Module):
     """
-    Recognition-Parametrized Model (RPM)
+    Recognition-Parametrized Model (RPM) with discrete latent variables.
+    Explicitly utilizes the Softmax-form for p(xj^n|Z) = Softmax(log f(Z|xj^n) ).
     """
-    def __init__(self, rec_models, latent_prior, pxjs):
+    def __init__(self, rec_models, latent_prior, pxjs, full_N_for_Fj=True):
 
         super().__init__()
         self.J = len(rec_models)
@@ -15,25 +15,33 @@ class discreteRPM_softmaxForm(torch.nn.Module):
         self.rec_models = torch.nn.ModuleList(rec_models)
         self.latent_prior = latent_prior
         self.pxjs = pxjs
+        self.full_N_for_Fj = full_N_for_Fj
 
     def log_probs(self, idx_n):
 
-        xjis = [self.pxjs[j].x for j in range(self.J)]                                 # N - D
-        #gji = [m.affine_all_z(xj) for m,xj in zip(self.rec_models, xjis)]             # N - K  x J
-        #log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)] # 1 - K  x J
-        #log_aji = [gji[j][idx_n] - log_Zj[j] for j in range(J)  ]                     # b - K  x J
-        gji = [m.affine_all_z(xj[idx_n]) for m,xj in zip(self.rec_models, xjis)]       # N - K  x J
-        log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)]  # 1 - K  x J
-        log_aji = [gji[j] - log_Zj[j] for j in range(self.J) ]                         # b - K  x J
-        log_joint = self.latent_prior.log_probs() + sum(log_aji)                       # b - K
-        return torch.logsumexp(log_joint,axis=-1)                                      # b
+        xjis = [self.pxjs[j].x for j in range(self.J)]                                     # N - D
+        if self.full_N_for_Fj:
+            gji = [m.affine_all_z(xj) for m,xj in zip(self.rec_models, xjis)]             # N - K  x J
+            log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)] # 1 - K  x J
+            log_aji = [gji[j][idx_n] - log_Zj[j] for j in range(J)  ]                     # b - K  x J
+        else: # compute Fj(Z) only over minimatch 
+            gji = [m.affine_all_z(xj[idx_n]) for m,xj in zip(self.rec_models, xjis)]       # N - K  x J
+            log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)]  # 1 - K  x J
+            log_aji = [gji[j] - log_Zj[j] for j in range(self.J) ]                         # b - K  x J
+        log_joint = self.latent_prior.log_probs() + sum(log_aji)                           # b - K
+        return torch.logsumexp(log_joint,axis=-1)                                          # b
 
     def eval(self, idx_n):
 
-        xjis = [self.pxjs[j].x for j in range(self.J)]                                # N - D
-        gji = [m.affine_all_z(xj) for m,xj in zip(self.rec_models, xjis)]             # N - K  x J
-        log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)] # 1 - K  x J
-        log_aji = [gji[j][idx_n] - log_Zj[j] for j in range(self.J)  ]                # b - K  x J
+        xjis = [self.pxjs[j].x for j in range(self.J)]                                    # N - D
+        if self.full_N_for_Fj:
+            gji = [m.affine_all_z(xj) for m,xj in zip(self.rec_models, xjis)]             # N - K  x J
+            log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)] # 1 - K  x J
+            log_aji = [gji[j][idx_n] - log_Zj[j] for j in range(self.J)  ]                # b - K  x J            
+        else: # compute Fj(Z) only over minimatch 
+            gji = [m.affine_all_z(xj[idx_n]) for m,xj in zip(self.rec_models, xjis)]       # N - K  x J
+            log_Zj = [torch.logsumexp(gji[j],axis=0).unsqueeze(0) for j in range(self.J)]  # 1 - K  x J
+            log_aji = [gji[j] - log_Zj[j] for j in range(self.J) ]                         # b - K  x J
         log_joint = self.latent_prior.log_probs() + sum(log_aji)                      # b - K
         log_w =  torch.logsumexp(log_joint,axis=-1)                                   # b
         posterior = torch.exp(log_joint - log_w.unsqueeze(-1))                        # b - K
@@ -47,7 +55,8 @@ class discreteRPM_softmaxForm(torch.nn.Module):
 
 class discreteRPM_localLatents(torch.nn.Module):
     """
-    Recognition-Parametrized Model (RPM)
+    Recognition-Parametrized Model (RPM) with local latents. 
+    This variant was written purely for testing purposes. 
     """
     def __init__(self, rec_models, latent_prior_g, latent_priors_j, px_alljs):
 
@@ -127,10 +136,12 @@ class discreteRPM_localLatents(torch.nn.Module):
         return [self.rec_models[j](xjs[j])+self.latent_prior.param for j in range(self.J)]
 
 
-
 class discreteRPM(torch.nn.Module):
     """
-    Recognition-Parametrized Model (RPM)
+    Recognition-Parametrized Model (RPM) with discrete latent variables. 
+    Implements a particular way of expressing the marginal log p(x) = log w(x) + const.
+    as a weighted sum of posterior expectations. Works, but uses more computations 
+    than strictly necessary.
     """
     def __init__(self, rec_models, latent_prior, pxjs):
 
@@ -188,7 +199,10 @@ class discreteRPM(torch.nn.Module):
 
 class discreteRPVAE(torch.nn.Module):
     """
-    Variational auto-encoder for recognition-Parametrized Model (RPM)
+    Variational auto-encoder for recognition-Parametrized Model (RPM) with discrete latents.
+    Model written for testing purposes - discrete RPMs do not need variational posteriors. 
+    Implements the re-parametrization of a variational posterior q(Z|X) under the assumption
+    that Fj(Z)=p(Z) for all j to quickly test the idea in the simpler setup with discrete Z.
     """
     def __init__(self, rec_models, latent_prior, pxjs):
 
@@ -256,7 +270,11 @@ class discreteRPVAE(torch.nn.Module):
 
 class discretenonCondIndRPM(torch.nn.Module):
     """
-    Recognition-Parametrized Model (RPM) without conditional independence assumption
+    Recognition-Parametrized Model (RPM) without conditional independence assumption.
+    Model written for testing purposes.
+    An RPM variant without conditional independence, inspired by
+    Infonce is a variational autoencoder, Laurence Aitchison & Stoil Ganev (2021)
+    which explicitly operates on the full N^J-dimensional grid (!).
     """
     def __init__(self, rec_model, latent_prior, pxjs, full_F=True):
 
@@ -270,7 +288,7 @@ class discretenonCondIndRPM(torch.nn.Module):
 
     def eval(self, xs):
         # xs be of shape batchsize-J-D
-        # xs = torch.stack(xjs, axis=1)                                  # 
+        # xs = torch.stack(xjs, axis=1)
         J = self.J
 
         if self.full_F: # compute normalizer across all N datapoints
@@ -301,6 +319,7 @@ class discretenonCondIndRPM(torch.nn.Module):
 
     def forward(self, xs):
         return self.rec_model(xs)+self.latent_prior.param
+
 
 class Prior_discrete(torch.nn.Module):
     """
