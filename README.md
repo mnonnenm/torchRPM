@@ -10,7 +10,7 @@ $p_\theta(X,Z) = p_\theta(Z) \prod_j p(x_j|Z) = p_\theta(Z) \prod_j \frac{f_{\th
 
 where $p(Z)$ is the prior, $p_0(x_j)$ are empirical marginals of a dataset $X^n, n=1,\ldots, N$, the terms $f(Z|x_j)$ are the so-called recognition factors and the normalizers $F_j(Z) = 1/N \sum_n f(Z|x_j^n)$ ensure normalization of the likelihoods $p(x_j|Z)$.
 
-The RPM is unusual in that it defines the likelihoods $p(x_j|Z)$ via their respective recognition models $f(Z|x_j) = \frac{p(x_j|Z) F_j(Z)}{p(x_j)}$, specified by fixing the corresponding marginals the data-derived empirical marginal $p_0(x_j)$ and the resulting $F_j(Z) = \int f(Z|x_j) p_0(x_j) dx_j = 1/N \sum_n f(Z|x_j^n)$. 
+The RPM is unusual in that it defines the likelihoods $p(x_j|Z)$ via their respective recognition models $f(Z|x_j) = \frac{p(x_j|Z) F_j(Z)}{p(x_j)}$, specified by fixing the corresponding marginals the data-derived empirical marginal $p_0(x_j)$ and the resulting per-$j$ marginals $F_j(Z) = \int f(Z|x_j) p_0(x_j) dx_j = 1/N \sum_n f(Z|x_j^n)$. 
 
 Trained with a global recognition model $q(Z|X) \approx p_\theta(Z|X)$ and variational free energy, the RPM thus only requires to write down recognition-type models: $q(Z|X)$ and $f(Z|x_j), j=1,\ldots,J$. Due to the mixture-model form of the factor normalizers $F_j(Z), working with it in practice is less straighforward than for instance working with variational auto-encoders, and due to its semi-parametric nature (the dataset $X^n$, $n=1,\ldots,N$ becomes part of the density $p_\theta(X,Z)$ !) it is arguably more challenging to analyze than typical deep generative models.
 
