@@ -53,3 +53,17 @@ class Net_3xConv1D(torch.nn.Module):
         x = torch.nn.functional.relu(self.conv2(x))
         x = self.conv3(x)
         return self.activation_out(x)
+
+
+class Net_3xFCRelu(torch.nn.Module):
+    def __init__(self, n_in, n_out, n_hidden, activation_out=torch.nn.Identity()):
+        super(Net_3xFCRelu, self).__init__()
+        self.activation_out = activation_out
+        self.fc1 = torch.nn.Linear(n_in, n_hidden, bias=True)
+        self.fc2 = torch.nn.Linear(n_hidden, n_hidden, bias=True)
+        self.fc3 = torch.nn.Linear(n_hidden, n_out, bias=True)
+    def forward(self, x):
+        x = torch.nn.functional.relu(self.fc1(x))
+        x = torch.nn.functional.relu(self.fc2(x))
+        x = self.fc3(x)
+        return self.activation_out(x)
